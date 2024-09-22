@@ -1,0 +1,42 @@
+import requests
+import json
+
+API_KEY = "0738b50f0c43cdde346fbeb63a5c9148"
+BASE_URL = "https://api.openweathermap.org/data/2.5/weather"
+
+def get_weather(city_name):
+    try:
+        url = f"{BASE_URL}?q={city_name}&appid={API_KEY}&units=metric"
+
+        response = requests.get(url)
+        response.raise_for_status()  
+
+        data = response.json()
+
+        if data["cod"] == 200:
+            main = data['main']
+            wind = data['wind']
+            weather = data['weather'][0]
+
+            print(f"Weather in {city_name.capitalize()}:")
+            print(f"Description: {weather['description']}")
+            print(f"Temperature: {main['temp']}°C")
+            print(f"Humidity: {main['humidity']}%")
+            print(f"Wind Speed: {wind['speed']} m/s")
+        else:
+            print(f"Error: {data['message']}")
+    
+    except requests.exceptions.HTTPError as http_err:
+        print(f"HTTP error occurred: {http_err}")
+    except requests.exceptions.ConnectionError as conn_err:
+        print(f"Connection error occurred: {conn_err}")
+    except requests.exceptions.Timeout as timeout_err:
+        print(f"Timeout error occurred: {timeout_err}")
+    except requests.exceptions.RequestException as req_err:
+        print(f"An error occurred: {req_err}")
+    except json.JSONDecodeError:
+        print("Failed to parse response from API. Check your internet connection or API key.")
+
+if __name__ == "__main__":
+    city = input("Enter city name: ")
+    get_weather(city)
